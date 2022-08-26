@@ -10,6 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 public class YmsApplication {
 
     public static void main(String[] args) {
+        System.out.println("lllll");
         SpringApplication.run(YmsApplication.class, args);
     }
 
