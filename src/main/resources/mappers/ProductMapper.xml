@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.yms.mapper.ProductMapper">
+    <resultMap id="mapProductAndType" type="Product">
+        <!--先映射普通属性-->
+        <id column="id" property="id"></id>
+        <result column="pname" property="pname"></result>
+        <result column="typeid" property="typeid"></result>
+        <result column="tprice" property="tprice"></result>
+        <result column="tintroduce" property="tintroduce"></result>
+        <result column="pimageurl" property="pimageurl"></result>
+        <result column="photstate" property="photstate"></result>
+        <result column="pdiscount" property="pdiscount"></result>
+        <result column="pstate" property="pstate"></result>
+        <!--再映射实体类属性-->
+        <association property="type" javaType="Type">
+            <id column="id" property="id"></id>
+            <result column="typename" property="typeName"></result>
+            <result column="timageurl" property="tImageUrl"></result>
+            <result column="tstate" property="tState"></result>
+        </association>
+    </resultMap>
+    <!--分页查询product数据-->
+
+    <select id="queryByPage" resultMap="mapProductAndType">
+        select p.*, t.id t_id, t.typename
+        from product p, type t
+        where p.typeid = t.id
+        <if test="p !=null and p !=''" >
+            and pname like concat('%',#{p},'%')
+        </if>
+
+        <if test="t !=null and t !=''" >
+            and typename like concat('%',#{t},'%')
+        </if>
+            limit #{s},#{l}
+    </select>
+
+    <!--查询数据量-->
+    <select id="findCount" resultType="java.lang.Integer">
+        select count(id) from product
+        <if test="pname !=null and pname !=''">
+             where pname like concat('%',#{pname},'%')
+        </if>
+    </select>
+
+    <!--根据id修改状态-->
+    <update id="updateState">
+        update product set pstate= #{pstate} where id =#{id}
+    </update>
+
+    <!--根据id修改状态-->
+    <update id="DrinkState">
+        update product set photstate= #{photstate} where id =#{id}
+    </update>
+
+    <!--根据id删除数据-->
+    <delete id="deleteType">
+        delete from product where id= #{id}
+    </delete>
+
+    <!--根据id修改产品-->
+    <update id="updateProduct">
+        update product set pname= #{pname}, pimageurl= #{pimageurl} ,
+                           tprice= #{tprice},tintroduce= #{tintroduce},
+                           pdiscount= #{pdiscount},photstate= #{photstate}
+                            where id= #{id}
+    </update>
+
+    <!--插入新的产品-->
+    <insert id="addProduct">
+        insert into product(pname,typeid,tprice,tintroduce,pdiscount,pimageurl,photstate,pstate)
+        values(#{pname},#{typeid},#{tprice},#{tintroduce},#{pdiscount},#{pimageurl},#{photstate},#{pstate});
+    </insert>
+
+    <!--查询数据量 根据类型-->
+    <select id="findCount1" resultType="java.lang.Integer">
+        select count(typename)
+        from product p, type t
+        where p.typeid = t.id
+        <if test="typeName !=null and typeName !=''">
+            and  typename like concat('%',#{typeName},'%')
+        </if>
+    </select>
+
+
+    <select id="getTypeid" resultType="java.lang.Integer">
+        select id from type where typename=#{typeName}
+    </select>
+
+</mapper>

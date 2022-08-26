@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>商品类型列表</title>
+  <link rel="stylesheet" href="/layui/css/layui.css">
+  <link rel="stylesheet" href="/plugins/font-awesome-4.7.0/css/font-awesome.min.css" />
+  <style>
+    tbody td:nth-child(3) div{
+      height: 60px;
+    }
+
+    tr .layui-table-cell{
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layui-fluid" style="margin-top: 10px;">
+  <div class="layui-row">
+    <div class="layui-col-md12">
+      <!-- 搜索表单 -->
+      <form class="layui-form" lay-filter="searchTypeForm" style="display: inline-block">
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <label class="layui-form-label">产品名称：</label>
+            <div class="layui-input-inline">
+              <input type="text" name="pname" lay-verify="title" autocomplete="off"
+                     placeholder="请输入产品名称" class="layui-input">
+            </div>
+          </div>
+
+<!--          <div class="layui-inline">-->
+<!--            <label class="layui-form-label">产品类型：</label>-->
+<!--            <div class="layui-input-inline">-->
+<!--              <input type="text" name="typeName" lay-verify="title" autocomplete="off"-->
+<!--                     placeholder="请输入产品类型" class="layui-input">-->
+<!--            </div>-->
+<!--          </div>-->
+
+          <div class="layui-inline">
+            <label class="layui-form-label">产品类型：</label>
+            <div class="layui-input-block" style="width: 200px" >
+              <select name="typeName" id="typeName" lay-filter="selectTypeName" >
+                <option value="">请选择</option>
+              </select>
+            </div>
+          </div>
+
+
+          <div class="layui-inline">
+            <button id="searchBtn" type="button"  class="layui-btn layui-btn-normal">
+              <i class="fa fa-search"></i>
+              搜索
+            </button>
+          </div>
+          <div class="layui-inline">
+            <button id="addType" type="button" class="layui-btn">
+              <i class="fa fa-plus"></i>
+              添加产品
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- 表格 -->
+      <table id="productList" lay-filter="test"></table>
+    </div>
+  </div>
+</div>
+
+<!-- “ 操作 ” 这一列的模板代码 -->
+<script type="text/html" id="opration">
+  <div>
+    <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" lay-event="updateType">
+      <i class="fa fa-pencil"></i>
+      编辑
+    </button>
+    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm" lay-event="deleteType">
+      <i class="fa fa-trash"></i>
+      删除
+    </button>
+  </div>
+</script>
+
+
+<script src="/layui/layui.js"></script>
+<script>
+  layui.use(['form','table','layer'], function(){
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+    var $ = layui.$;
+
+
+    //获取下拉框商品类型
+    $.ajax({
+      url : '/type/getAll',
+      success:function(res){
+        if(res.code==0){
+          for(var i =0;i<res.count;i++){
+            $("#typeName").append("<option  value="+res.data[i].typeName+">"+res.data[i].typeName+"</option>");
+          }
+          //重新渲染
+          layui.form.render("select");
+        }else{
+          layer.msg(res.msg);
+        }
+      }
+    });
+
+    //在选择下拉框中的某一项后的事件
+    form.on('select(selectTypeName)', function(data){
+      $typename=data.value;
+      //alert($typename); //得到被选中的值
+      /* options.url = '/product/getProductByPage?typename='+data.value;
+       table.reload('productList',options);*/
+    });
+
+
+    //搜索按钮的点击事件
+    $('#searchBtn').on('click', function(){
+      form.submit('searchTypeForm', function(data){
+        // data：包含了表单的各种数据
+        // data.field：是表单中所有input元素的数据
+        let $pname = data.field.pname;
+        let $typeName=data.field.typeName;
+        //判断typeName是否为空字符串
+          if($pname !=''){
+            opions.url='/product/queryByPage?pname='+$pname;
+            if ($typeName !='') {
+              opions.url = '/product/queryByPage?pname=' + $pname + '&' + 'typeName=' + $typeName;
+            }
+          } else if ($typeName != ''){
+            opions.url='/product/queryByPage?typeName='+$typeName;
+          }
+          else{
+          layer.msg("请输入产品名称或者产品类型！！")
+          //重置url
+          opions.url='/product/queryByPage';
+        }
+        //设置当前页,page属性值为Boolean类型时表示是是否开启分页
+        //若page属性值为一个对象，page属性就是分页参数
+        //其中curr表示当前分页，会直接影响layUI发送给服务器的参数page
+        opions.page= {curr:1};
+        //重载表格,显示数据,reload（table元素的id属性值，表格参数）
+        table.reload('productList',opions);
+      });
+    });
+
+    // 新增商品类型的点击事件
+    $('#addType').on('click', function () {
+      // 开启弹出层
+      layer.open({
+        title: '<h3><strong>新增商品</strong></h3>',
+        type: 2,
+        area: ['40%','80%'],
+        content: 'addProduct.html',
+        end: function () {  // 弹出层正常关闭后要执行的函数
+          console.log("新增商品的弹出层关闭了！")
+          // 刷新table
+          table.reload('productList');
+        }
+      });
+    });
+
+    //表格参数对象
+    var opions={
+      // 指定table元素
+      elem: '#productList',
+      // 数据接口
+      url: '/product/queryByPage',
+      //开启分页
+      page: true,
+      // 表头设置
+      cols: [[
+        {field: 'id', title: 'ID', width:80, sort: true},
+        {field: 'pimageurl', title: '产品图片', width:100, templet: function (d) {
+            //d包含表格相关的数据
+            return '<img width="100%" height="100%" src="'+ d.pimageurl +'">';
+          }
+        },
+        {field: 'pname', title: '产品名称', width:150},
+        {field: 'type.typeName', title: '产品类型', width:100, templet: function (d) {
+            return d.type.typeName;
+          }
+        },
+        {field: 'tprice', title: '产品价格', width:100},
+        {field: 'tintroduce', title: '产品描述', width:150},
+        {field: 'pdiscount', title: '折扣', width:100},
+        {field: 'photstate', title: '是否为热饮', width:100, templet: function (d) {
+            if ( d.photstate == 1 ){
+              return '<input type="checkbox" checked="" lay-skin="switch" lay-filter="switchStatsBtn1" lay-text="是|否">';
+            }else{
+              return '<input type="checkbox" lay-skin="switch" lay-filter="switchStatsBtn1" lay-text="是|否">';
+            }
+          }
+        },
+        {field: 'pstate', title: '状态', width:110, templet: function (d) {
+            if ( d.pstate == 1 ){
+              return '<input type="checkbox" checked="" lay-skin="switch" lay-filter="switchStatsBtn" lay-text="已启用|已禁用">';
+            }else{
+              return '<input type="checkbox" lay-skin="switch" lay-filter="switchStatsBtn" lay-text="已启用|已禁用">';
+            }
+          }
+        },
+        {title: '操作', width:200, templet: '#opration'},
+      ]]
+    }
+
+    //渲染表格
+    table.render(opions);
+
+    //指定开关事件
+    form.on('switch(switchStatsBtn)', function(){
+      // layer.msg("开关被点击");
+      // 一、获取开关按钮的状态(1表示已启用)
+      let $btnState = this.checked ? 1 : 0;
+      // 二、获取id
+      let $tdOfId = $(this).parent().parent().siblings()[0];
+      let $id = $tdOfId.innerText;
+      // 三、使用Ajax发送请求
+      $.post("/product/updateState",{id:$id, pstate:$btnState}, function (d) {
+        // d是服务器响应的数据
+        // ......
+        if (d.code=='0'){
+          layer.msg($btnState==1 ? '已启用' : '已禁用');
+        }else {
+          layer.msg(d.code+":"+d.msg);
+        }
+        //重载表格中当前页的数据
+        table.reload('productList');
+      });
+    });
+
+    //指定热饮开关事件
+    form.on('switch(switchStatsBtn1)', function(){
+      // layer.msg("开关被点击");
+      // 一、获取开关按钮的状态(1表示已启用)
+      let $btnState = this.checked ? 1 : 0;
+      // 二、获取id
+      let $tdOfId = $(this).parent().parent().siblings()[0];
+      let $id = $tdOfId.innerText;
+      // 三、使用Ajax发送请求
+      $.post("/product/drinkState",{id:$id, photstate:$btnState}, function (d) {
+        // d是服务器响应的数据
+        // ......
+        if (d.code=='0'){
+          layer.msg($btnState==1 ? '是' : '否');
+        }else {
+          layer.msg(d.code+":"+d.msg);
+        }
+        //重载表格中当前页的数据
+        table.reload('productList');
+      });
+    });
+
+    // 绑定当前行的事件（用于修改按钮和删除按钮）
+    table.on('tool(test)', function(obj){
+      var data = obj.data; //获得当前行数据
+      var layEvent = obj.event; //获得元素的 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+      var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+
+      // 判断点击的是哪个按钮
+      if(obj.event === 'deleteType'){
+
+        if (data.pstate==1){
+            layer.msg("请先禁用状态，再操作");
+            return;
+        }
+
+        // 删除按钮的事件
+        // 通知栏提示
+        layer.confirm('确定删除？？？', function(index){
+          // ajax，根据id删除
+          let $id = data.id;
+          $.post("/product/delType",{id:$id}, function (d) {
+            if ( d.code == '0' ){
+              layer.msg('删除成功！');
+              // 调用layUI的del()函数删除这一行
+              // 这只是在页面上删除一个元素，并不是真正的删除
+              obj.del();
+              //获取tbody当中的所有tr元素
+              let $trs= $('tbody tr');
+              //当tbody当中没有数据的时候，则显示当前页-1
+              if ($trs.length == 0){
+                //获取当前页
+                let $curr=$('.layui-laypage-curr em:nth-child(2)').text();
+                //重置当前页
+                opions.page={curr:$curr-1};
+                //若要修改表格的参数，并根据参数重载表格，则使用reload（‘表格id’，表格参数）
+                //重载整张表（表结构、表中的数据、分页等等）
+                table.reload('productList',opions);
+              }else{
+                //当需要在表格当中刷星当前页数据，则使用reload（‘表格id’）
+                //仅重载当前页数据
+                table.reload('productList');
+              }
+            }else{
+              layer.msg(d.code +'：'+ d.msg);
+            }
+          });
+        });
+      } else if(obj.event === 'updateType'){
+        if (data.pstate==1){
+          layer.msg("请先禁用状态，再操作");
+          return;
+        }
+        // 开启弹出层
+        layer.open({
+          title: '<h3><strong>编辑产品类型</strong></h3>',
+          type: 2,
+          area: ['45%','80%'],
+          content: 'updateProduct.html',
+          success: function(layero, index){  // 弹出层正常弹出后要执行的函数
+            // 实现数据回显，将数据展示在弹出层当中
+            // 1、获取弹出层嵌入的html页面内的body元素
+            var body = layer.getChildFrame('body', index);
+            // 2、获取data中的数据并显示在内嵌页面指定的元素中
+            //回显商品类型的id
+            body.find("#typeId").val(data.id);
+            // 回显商品分类名称
+            body.find("#pname").val(data.pname);
+            body.find("#tprice").val(data.tprice);
+            body.find("#tintroduce").val(data.tintroduce);
+            body.find("#pdiscount").val(data.pdiscount);
+            body.find("#photstate").val(data.photstate);
+            // 回显图片
+            let $inputs=body.find(".pimageurl");
+            for (let i=0;i<$inputs.length;i++){
+              let $value=$inputs[i].value;
+              if(data.pimageurl.indexOf($value)!=-1){
+                //为当前元素添加checked属性并赋值为true
+                //当前的单选框被选中
+                $inputs[i].checked=true;
+                //重载当前iframe页面的form表单
+                //1.获取当前弹出层的窗口
+                let updateWin= layero.find('iframe')[0].contentWindow;
+                //2.通过窗口对象获取当前弹出层的form对象，然后调用render("radio")重载单选框
+                updateWin.layui.form.render("radio");
+              }
+            }
+          },
+          end: function () {  // 弹出层正常关闭后要执行的函数
+            console.log("编辑商品类型的弹出层关闭了！")
+            //刷新table
+            table.reload('productList');
+          }
+        });
+      }
+    });
+  });
+
+</script>
+</body>
+</html>

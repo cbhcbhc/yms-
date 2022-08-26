@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改商品类型</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+</head>
+<body>
+    <div class="layui-container">
+        <div class="layui-row">
+            <div class="layui-col-md8">
+                <form class="layui-form" lay-filter="updateTypeForm" style="margin-top: 20px">
+                    <!--隐藏域，用于接收父层传递过来的id值-->
+                    <input type="hidden" name="id" id="typeId">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">类型名称：</label>
+                        <div class="layui-input-block">
+                            <input id="typeName" type="text" name="typeName" lay-verify="title" autocomplete="off"
+                                   placeholder="请输入类型名称" class="layui-input" style="width: 300px">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">修改图片：</label>
+                        <div class="layui-input-block">
+                            <img src="/images/typeImg/t1.png" width="60px" height="60px">
+                            <input  class="typeImage"   type="radio" name="imageName" value="t1">
+
+                            <img src="/images/typeImg/t2.png" width="60px" height="60px">
+                            <input  class="typeImage"  type="radio" name="imageName" value="t2">
+
+                            <img src="/images/typeImg/t3.png" width="60px" height="60px">
+                            <input   class="typeImage"  type="radio" name="imageName" value="t3">
+
+                            <br><br>
+
+                            <img src="/images/typeImg/t4.png" width="60px" height="60px">
+                            <input class="typeImage" type="radio" name="imageName" value="t4">
+
+                            <img src="/images/typeImg/t5.png" width="60px" height="60px">
+                            <input class="typeImage" type="radio" name="imageName" value="t5">
+
+                            <img src="/images/typeImg/t6.png" width="60px" height="60px">
+                            <input class="typeImage" type="radio" name="imageName" value="t6">
+                        </div>
+                    </div>
+                    <span>注：在修改数据的时候，开关默认属于禁用状态；修改完数据后，请手动开启</span>
+                    <hr>
+                    <div class="layui-form-item" style="float: right">
+                        <div class="layui-input-block">
+                            <button type="reset" class="layui-btn">重置</button>
+                            <button type="button" id="updateBtn" class="layui-btn layui-btn-warm">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script src="/layui/layui.js"></script>
+        <script>
+            layui.use('form', function(){
+                var form = layui.form;
+                var $ = layui.$;
+
+                //方法提交
+                $('#updateBtn').on('click', function(){
+                    // 数据回显
+
+                    // 提交数据
+                    form.submit('updateTypeForm', function(data){
+                        // data是表单中的数据
+                        console.log(data.field);
+                        let $id=data.field.id;
+                        let $typeName=data.field.typeName;
+                        let $imageName=data.field.imageName;
+                        $.post("/type/updateType",{id:$id,typeName:$typeName,imageName:$imageName},function (d) {
+                            //关闭当前的iframe弹出层
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                            //d:服务器返回的响应数据
+                            if (d.code=="0"){
+                                parent.layer.msg("修改成功。")
+                            }else {
+                                parent.layer.msg(d.code+":"+d.msg);
+                            }
+                        })
+                    });
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>后台管理系统登录</title>
+		<link rel="stylesheet" media="screen" href="./plugins/signin/css/style.css">
+		<link rel="stylesheet" type="text/css" href="./plugins/signin/css/reset.css" />
+	</head>
+	<body>
+	<div id="particles-js">
+		<div class="login">
+			<div class="login-top">
+				后台管理系统登录
+			</div>
+			<div class="login-center clearfix">
+				<div class="login-center-img"><img src="./plugins/signin/img/name.png" /></div>
+				<div class="login-center-input">
+					<input id="account" type="text" name="account" value="admin" placeholder="请输入您的用户名" onfocus="this.placeholder=''"
+						   onblur="this.placeholder='请输入您的用户名'" />
+					<div class="login-center-input-text">用户名</div>
+				</div>
+			</div>
+			<div class="login-center clearfix">
+				<div class="login-center-img"><img src="./plugins/signin/img/password.png" /></div>
+				<div class="login-center-input">
+					<input id="pwd" type="password" name="pwd" value="" placeholder="请输入您的密码" onfocus="this.placeholder=''"
+						   onblur="this.placeholder='请输入您的密码'" />
+					<div class="login-center-input-text">密码</div>
+				</div>
+			</div>
+			<div id="loginBtn" class="login-button">
+				<input style="border: none;background: none;font-size: larger;color: white;width: 230px"  type="submit" value="登录">
+			</div>
+		</div>
+		<div class="sk-rotating-plane"></div>
+	</div>
+
+
+
+		<!-- scripts -->
+		<script src="./plugins/signin/js/particles.min.js"></script>
+		<script src="./plugins/signin/js/app.js"></script>
+		<script src="./plugins/JQuery/jquery-3.5.1.min.js"></script>
+
+	<script type="text/javascript">
+		//页面加载函数
+		$(function (){
+			let $loginBtn=$("#loginBtn");
+			//点击事件
+			$loginBtn.click(function (){
+				login();
+			});
+			//回车事件
+			document.onkeydown=function (e){
+				if(e.keyCode==13){
+					login();
+				}
+			}
+
+			function login(){
+				//获取输入的数据,val()：获取输入框的value属性值（即：输入的数据）
+				let $account=$("#account").val();
+				let $pwd=$("#pwd").val();
+				//AJAx发送请求到服务器
+				//$.post("URL",提交给服务器的数据,请求成功的回调函数)
+				//提交给服务器的数据有一个语法格式：{数据名1:数据值，数据名2:数据值}
+				//回调函数中的参数d：服务器响应的数据
+				$.post("/login",{account:$account,pwd:$pwd},function (d){
+					if(d.code=='0'){
+						//跳转到主页面
+						location.assign("/mainPage");
+					}else {
+						//给出提示
+						alert(d.code+":"+d.msg);
+						//刷新当前页面
+						location.reload();
+					}
+				});
+			}
+		})
+	</script>
+	</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>后台管理系统</title>
+		<!--引入layui的样式表 -->
+		<link rel="stylesheet" href="./layui/css/layui.css"/>
+		<!-- 引入fot-awesome图标库的样式表 -->
+		<link rel="stylesheet" href="./plugins/font-awesome-4.7.0/css/font-awesome.min.css"/>
+		<style>
+			.layui-nav-child dd{
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+	
+		<div class="layui-layout layui-layout-admin">
+			<!-- 页面头部 -->
+		  <div class="layui-header">
+			  <!-- 公司logo、系统名称 -->
+		    <div class="layui-logo layui-hide-xs layui-bg-black">
+				<img src="./images/logo/logo.jpg" class="layui-nav-img">
+				<span>后台管理系统</span>
+			</div>
+		    <!-- 水平导航条 -->
+		    <ul class="layui-nav layui-layout-right">
+		      <li class="layui-nav-item layui-hide layui-show-md-inline-block">
+				  <!-- 显示头像和用户名 -->
+				  <a href="javascript:;">
+					  <img th:src="@{${session.adminInfo !=null?session.adminInfo.headPhoto:''}}" class="layui-nav-img">
+					  <span th:text="${session.adminInfo.name}"></span>
+				  </a>
+				<!-- 菜单：当鼠标放在用户名上时会自动弹出 -->
+		        <dl class="layui-nav-child">
+		          <dd><a href="">修改信息</a></dd>
+		          <dd><a href="">修改密码</a></dd>
+		          <dd><a href="">退出系统</a></dd>
+		        </dl>
+		      </li>
+		    </ul>
+		  </div>
+		  <!-- 页面左侧 -->
+		  <div class="layui-side layui-bg-black">
+		    <div class="layui-side-scroll">
+		      <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+		      <ul class="layui-nav layui-nav-tree" lay-filter="test">
+				  <!-- 导航栏模块 -->
+				  <!-- layui-nav-itemed:该class值会自动打开一级菜单   <li class="layui-nav-item layui-nav-itemed">-->
+		        <li class="layui-nav-item">
+				<!-- 一级菜单 -->
+					<a class="" href="javascript:;">
+					  <i class="fa fa-product-hunt fa-lg" aria-hidden="true" style="color: aqua;"></i>
+					  &nbsp;&nbsp;
+					  产品管理
+					</a>
+				  <!-- 二级菜单 -->
+		          <dl class="layui-nav-child">
+		            <dd><a href="/views/product/productList.html" target="content">商品管理</a></dd>
+		            <dd><a href="/views/type/typeList.html" target="content">商品类型管理</a></dd>
+		          </dl>
+		        </li>
+		        <li class="layui-nav-item">
+		          <a href="javascript:;">
+					  <i class="fa fa-database fa-lg" aria-hidden="true" style="color: aquamarine;"></i>
+					  &nbsp;&nbsp;
+					  数据管理
+					  </a>
+		          <dl class="layui-nav-child">
+		            <dd><a href="javascript:;">用户管理</a></dd>
+		          </dl>
+		        </li>
+				<li class="layui-nav-item">
+				  <a href="javascript:;">
+					  <i class="fa fa-first-order fa-lg" aria-hidden="true" style="color: cornflowerblue;"></i>
+					  &nbsp;&nbsp;
+					  订单管理
+					  </a>
+				  <dl class="layui-nav-child">
+				    <dd><a href="javascript:;">全部订单</a></dd>
+					<dd><a href="javascript:;">待出货订单</a></dd>
+				  </dl>
+				</li>
+				<li class="layui-nav-item">
+				  <a href="javascript:;">
+					  <i class="fa fa-pagelines fa-lg" aria-hidden="true" style="color: crimson;"></i>
+					  &nbsp;&nbsp;
+					  轮播图管理
+					  </a>
+				  <dl class="layui-nav-child">
+				    <dd><a href="javascript:;">轮播预览</a></dd>
+					<dd><a href="javascript:;">轮播图列表</a></dd>
+				  </dl>
+				</li>
+		        <li class="layui-nav-item">
+					<a href="javascript:;">
+						<i class="fa fa-quora fa-lg" aria-hidden="true" style="color: greenyellow;"></i>
+						&nbsp;&nbsp;
+						新功能正在开发中...
+						</a>
+					</li>
+		      </ul>
+		    </div>
+		  </div>
+		  
+		  <div class="layui-body">
+		    <!-- 内容主体区域 -->
+		    <iframe name="content" width="99.8%" height="100%" src="/welcomePage"></iframe>
+		  </div>
+		  
+		  <div class="layui-footer">
+		    <!-- 底部固定区域 -->
+		    底部固定区域
+		  </div>
+		</div>
+		<!-- 引入layui的js文件 -->
+		<script type="text/javascript" src="layui/layui.js"></script>
+		<script>
+		//JS 
+		layui.use(['element', 'layer', 'util'], function(){
+		  var element = layui.element
+		  ,layer = layui.layer
+		  ,util = layui.util
+		  ,$ = layui.$;
+		  
+		  //头部事件
+		  util.event('lay-header-event', {
+		    //左侧菜单事件
+		    menuLeft: function(othis){
+		      layer.msg('展开左侧菜单的操作', {icon: 0});
+		    }
+		    ,menuRight: function(){
+		      layer.open({
+		        type: 1
+		        ,content: '<div style="padding: 15px;">处理右侧面板的操作</div>'
+		        ,area: ['260px', '100%']
+		        ,offset: 'rt' //右上角
+		        ,anim: 5
+		        ,shadeClose: true
+		      });
+		    }
+		  });
+		  
+		});
+		</script>
+	</body>
+</html>

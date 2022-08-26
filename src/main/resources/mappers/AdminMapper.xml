@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sys.yms.mapper.AdminMapper">
+    <resultMap id="mapAdmin" type="Admin">
+        <id column="a_id" property="id"></id>
+        <result column="a_account" property="account"></result>
+        <result column="a_pwd" property="password"></result>
+        <result column="a_headphoto" property="headPhoto"></result>
+        <result column="a_name" property="name"></result>
+        <result column="a_phone" property="phone"></result>
+        <result column="a_gender" property="gender"></result>
+        <result column="a_age" property="age"></result>
+    </resultMap>
+
+    <select id="findAdminByAccAndPwd" resultMap="mapAdmin">
+        select * from admin where a_account = #{acc}  and a_pwd = #{pwd}
+    </select>
+
+</mapper>
